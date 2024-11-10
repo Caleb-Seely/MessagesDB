@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Search Result</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <!-- Bokeh -->
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.0.min.js"></script>
+    {{ script|safe }}
+</head>
+<body>
+    <div class="container ">
+        <h1 class="text-center">Contact Results for 
+            <span class="received-message">{{contact_name}}</span>
+            </h1>
+        
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    {% for category, message in messages %}
+                        <h5 class="{{ category }}">{{ message }}</h5>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Results data -->
+        <div class="row text-center">
+            <div class="col-mb-2  card-body ">
+                <h5>Messages Sent: <span class="font-weight-bold">{{ total_sent }}</span></h5>
+            </div>
+            <div class="col-mb-2  card-body">
+                <h5>Messages Received: <span class="font-weight-bold">{{ total_received }}</span></h5>     
+            </div>
+            <div class="col-mb-2  card-body ">
+                <h5>Total Messages: <span class="font-weight-bold">{{ total_messages }}</span></h5>   
+            </div>
+        </div>
+        
+
+        <h3>Last Message Exchanged</h3>
+        {% if last_message %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <p><strong>ID:</strong> {{ last_message[0] }}</p>
+                    <p><strong>Date:</strong> {{ last_message[2] }}</p>
+                    <p><strong>Message Content:</strong> {{ last_message[5] }}</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <p>No last message found for this contact.</p>
+            </div>
+        {% endif %}
+
+        <form action="/search_by_contact" method="POST">
+            <div class="form-group">
+                <div class="form-group form-check">
+                    <input type="checkbox" id="show_all_messages" name="show_all_messages" class="form-check-input" onchange="toggleMessages()"
+                    {% if show_all %}checked{% endif %}>
+                    <label class="form-check-label" for="show_all_messages">Show all messages</label>
+                </div>
+                <h3 class="mb-2">Contact Search</h3>
+                <input type="text" id="contact_name" name="contact_name" autocomplete="off" class="form-control" placeholder="Contact Name" required>
+            </div>
+            <button type="submit" class="btn btn-success">Search</button>
+        </form>
+
+        <!-- Bokeh Plot Section -->
+        <div class="plot-section">
+            <h2>Message Lengths Over Time</h2>
+            <div id="plot">
+                {{ div|safe }}
+            </div>
+        </div>
+
+        <div id="messagesContainer">
+            {% if formatted_messages|length > 0 %}
+                <h3>All Messages with 
+                    <span class="received-message">{{ contact_name }}</span>
+                </h3>
+                <ul class="list-group">
+                    {% for message in formatted_messages %}
+                    <li class="list-group-item">
+                        <small class="text-muted">({{ message.readable_date }})</small>
+                        <span class="{{ 'sent-message' if message.type == 1 else 'received-message' }}">
+                            {{ message.message_content }}
+                        </span> 
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No messages found</p>
+            {% endif %}
+        </div>
+        
+        <a href="/uploaded_data" class="btn btn-secondary mt-3">Go Back</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function toggleMessages() {
+            var checkbox = document.getElementById("show_all_messages");
+            var messagesContainer = document.getElementById("messagesContainer");
+        
+            if (checkbox.checked) {
+                // Show all messages
+                messagesContainer.style.display = "block";
+            } else {
+                // Hide all messages
+                messagesContainer.style.display = "none";
+            }
+        }
+
+        window.onload = function() {
+            toggleMessages();
+        };
+    </script>
+
+</body>
+</html>

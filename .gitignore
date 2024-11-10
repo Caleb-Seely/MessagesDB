@@ -1,0 +1,30 @@
+# Ignore Python bytecode files
+__pycache__/
+*.py[cod]
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore log files
+*.log
+
+# Ignore database files
+*.db
+
+# Ignore virtual environment
+venv/
+env/
+
+# Ignore uploads
+uploads/*
+
+# Don't ignore the folder
+!uploads/
+!uploads/.gitkeep
+
+*.xml
+
+#Ignore git hub security key 
+/git-token.txt
+/My_Contacts.csv

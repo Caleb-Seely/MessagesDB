@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bokeh Plot</title>
+    <!-- Load Bokeh CSS -->
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.0.min.css" rel="stylesheet" type="text/css">
+    <!-- Load Bokeh JS -->
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.0.min.js"></script>
+    <!-- Insert Bokeh script here -->
+    {{ script|safe }}
+</head>
+<body>
+    <div class="container">
+        <h1>Message Length Scatter Plot</h1>
+        <!-- Insert Bokeh plot here -->
+        <div id="plot">
+            {{ div|safe }}
+        </div>
+    </div>
+</body>
+</html>

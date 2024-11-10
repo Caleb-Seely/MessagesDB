@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results for "{{ search_term }}"</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Link to your custom stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Page Title -->
+        <h1 class="mb-4">Keyword Results for 
+            <span class="received-message">"{{search_term}}"</span>
+        </h1>
+            <form action="/search_by_word" method="POST">
+                <div class="form-group">
+                    <input type="text" id="search_term" name="search_term" autocomplete="off" class="form-control" placeholder="Enter Keywords" required>
+                </div>
+                <button type="submit" class="btn btn-info">Search</button>
+            </form>
+            <!-- Back Button -->
+            <form class="form-group">
+                <a href="/uploaded_data" class="btn btn-secondary mt-2">Go Back</a>
+            </form>
+        {% if messages %}
+            <div class="alert alert-info">
+                <h4>Total matches: {{ total_matches }}</h4>
+            </div>
+            
+            <!-- Display results in a well-structured way -->
+            <ul class="list-group">
+                {% for message in messages %}
+                    <li class="list-group-item">
+                        <strong>Contact:</strong> {{ message.contact_name }}<br>
+                        <strong>Address:</strong> {{message.address}}<br>
+                        <strong>Date:</strong> {{ message.readable_date }}<br>
+                        <strong>Type:</strong> {{ 'Received' if message.type == 1 else 'Sent' }}<br>
+                        <strong>Message:</strong> {{ message.message_content | truncate(100) }} <!-- Truncate long messages -->
+                    </li>
+                {% endfor %}
+            </ul>
+
+        {% else %}
+            <div class="alert alert-warning">
+                <p>No messages found containing the term "<strong>{{ search_term }}</strong>".</p>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Include Bootstrap JS (Optional if you need JS functionality) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

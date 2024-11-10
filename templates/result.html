@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Analysis Results</title>
+    
+    <!-- Plotly and jQuery -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Bokeh -->
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.6.0.min.js"></script>
+    {{ script|safe }}
+    
+    <!-- Link to your custom stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1>Message Analysis Results</h1>
+            <p class="text-muted">Dive into your message data insights</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Basic Statistics</h3>
+                        <ul>
+                            <li>Total messages: <strong>{{ total_messages }}</strong></li>
+                            <li>Messages sent: <strong>{{ total_sent }}</strong></li>
+                            <li>Messages received: <strong>{{ total_received }}</strong></li>
+                            <li>Random message: <em>"{{ random_message }}"</em></li>
+                            <li>Most frequent sender: <strong>{{ most_frequent_sender }}</strong> ({{ most_frequent_sender_count }} messages)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Contacts -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>Top 5 Contacts</h3>
+                        <ul>
+                            {% for contact, count in top_contacts %}
+                                <li><strong>{{ contact }}</strong>: {{ count }} messages</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Random Message Section -->
+        <div class="card">
+            <div class="card-body">
+                <h3>Generate a New Random Message</h3>
+                <button id="new-random-btn" class="btn btn-primary">Get Random Message</button>
+
+                <!-- Random Message Details -->
+                <div id="random-message-details" class="mt-3">
+                    <ul>
+                        <li><strong>ID:</strong> <span id="message-id"></span></li>
+                        <li><strong>Date:</strong> <span id="message-date"></span></li>
+                        <li><strong>Contact:</strong> <a id="message-contact" href="#"><span id="message-contact-name"></span></a></li>
+                        <li><strong>Message:</strong> <span id="message-content"></span></li>
+                        <li><strong>Type:</strong> <span id="message-type"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bars -->
+        <div class="card">
+            <div class="card-body">
+                <h3>Search Contacts</h3>
+                <form action="/search_by_contact" method="POST" class="mb-4">
+                    <div class="form-group">
+                        <input type="text" id="contact_name" name="contact_name" autocomplete="off" class="form-control" placeholder="Contact Name" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Search</button>
+                </form>
+
+                <h3>Search Messages by Keywords</h3>
+                <form action="/search_by_word" method="POST">
+                    <div class="form-group">
+                        <input type="text" id="search_term" name="search_term" autocomplete="off" class="form-control" placeholder="Enter Keywords" required>
+                    </div>
+                    <button type="submit" class="btn btn-info">Search</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Average Message Length Table -->
+        <div class="card">
+            <div class="card-body">
+                <h3>Average Message Length by Contact (>500 msgs)</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Contact Name</th>
+                            <th>Avg Length</th>
+                            <th>Message Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contact, avg_length, message_count in avg_lengths %}
+                        <tr>
+                            <td>{{ contact }}</td>
+                            <td>{{ avg_length | round(2) }}</td>
+                            <td>{{ message_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bokeh Plot Section -->
+        <div class="plot-section">
+            <h2>Message Lengths Over Time</h2>
+            <div id="plot">
+                {{ div|safe }}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-5">
+            <a href="/" class="btn btn-secondary">Upload another file</a>
+        </div>
+    </div>
+
+    <script>
+       // Function to fetch and display a new random message
+        $(document).ready(function() {
+            $('#new-random-btn').on('click', function() {
+                $.ajax({
+                    url: '/random_message',
+                    type: 'GET',
+                    success: function(data) {
+                        $('#message-id').text(data.id);
+                        $('#message-date').text(data.date);
+                        $('#message-contact-name').text(data.contact_name);
+                        $('#message-contact').attr('href', '/search_by_contact?contact_name=' + encodeURIComponent(data.contact_name));
+                        $('#message-content').text(data.message_content);
+                        $('#message-type').text(data.type == 1 ? 'Received' : 'Sent');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error fetching random message:', error);
+                        alert('Could not fetch random message. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+    
+</body>
+</html>
